@@ -1,23 +1,14 @@
-FROM debian:10
+FROM node:lts
 
-RUN apt-get update && apt-get install -y \
-git \
-curl \
-python2 \
-build-essential \
-libkrb5-dev \
-vim \
-nano \
-libcairo2-dev \ 
-libpango1.0-dev \ 
-libjpeg-dev \ 
-libgif-dev \
-librsvg2-dev && \
-curl -sL https://deb.nodesource.com/setup_14.x | bash -E && apt-get install -y nodejs && \
-apt-get clean && \
-npm install -g pm2 && \
-git clone https://github.com/galnir/Master-Bot.git ./Master-Bot
-WORKDIR "/Master-Bot"
-COPY ./config.json* .
-COPY ./json.sqlite* .
-CMD ["pm2-runtime", "index.js"]
+WORKDIR /usr/src/app
+
+RUN apt-get update || : && apt-get install python -y
+RUN apt-get install ffmpeg -y
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+CMD [ "node", "index.js" ]
